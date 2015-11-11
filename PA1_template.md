@@ -1,4 +1,9 @@
-# Reproducible Research: Peer Assessment 1
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
 
 
 
@@ -111,13 +116,7 @@ stepsperday <- sqldf("SELECT date
                      FROM data 
                      WHERE steps != 'NA' 
                      GROUP BY date ORDER BY date")
-```
 
-```
-## Loading required package: tcltk
-```
-
-```r
 head(stepsperday)
 ```
 
@@ -161,7 +160,7 @@ his <- ggplot(stepsperday, aes(x = TotalSteps)) +
 print(his)
 ```
 
-![](PA1_template_files/figure-html/Histogram Total Number of Steps-1.png) 
+![plot of chunk Histogram Total Number of Steps](figure/Histogram Total Number of Steps-1.png) 
 
 ### 3. Calculate and report the mean and median of the total number of steps taken per day
 
@@ -187,7 +186,7 @@ hismm + geom_histogram(binwidth = 3000, alpha = .7, aes(fill = ..count..)) +
                , color = "white", linetype = "dashed", alpha = .7, size = 0.5)
 ```
 
-![](PA1_template_files/figure-html/Mean and Median-1.png) 
+![plot of chunk Mean and Median](figure/Mean and Median-1.png) 
 
 The **Median** of the total number of steps taken per day is 10765 while the **Mean** has a value of 10766.19 (excluding NAs).
 
@@ -247,7 +246,7 @@ ts + geom_line(alpha = .5) +
     theme(axis.title = element_text(color = "#666666", size = 12))
 ```
 
-![](PA1_template_files/figure-html/Time Series-1.png) 
+![plot of chunk Time Series](figure/Time Series-1.png) 
 
 ### 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
@@ -273,7 +272,7 @@ ts + geom_line(alpha = .5) +
     theme(legend.position = "none")
 ```
 
-![](PA1_template_files/figure-html/Max Interval-1.png) 
+![plot of chunk Max Interval](figure/Max Interval-1.png) 
 
 The interval **835** is the one with more steps in average: **206.2** 
 
@@ -370,7 +369,7 @@ grid.arrange(his + ggtitle("Histogram of the total number of steps \n taken each
              ,newhis , ncol = 2)
 ```
 
-![](PA1_template_files/figure-html/Plot Both Histograms-1.png) 
+![plot of chunk Plot Both Histograms](figure/Plot Both Histograms-1.png) 
 
 The new calculated **Median** is 10766.19 while the one excluding NAs was 10765
 
@@ -408,6 +407,6 @@ wts + geom_line(alpha = .5) +
     theme(legend.position = "none")
 ```
 
-![](PA1_template_files/figure-html/Weekdays vs Weekends-1.png) 
+![plot of chunk Weekdays vs Weekends](figure/Weekdays vs Weekends-1.png) 
 
 We can see from the above chart that there is more activity on the early hours on weeekdays while on weekends we can see similar spikes during the entire day. Interesting to highlight that on the late hours of the day the subject is more active during weekends than on weekdays. Definitely is not a programmer.
