@@ -1,13 +1,6 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
-```{r Environment Configuration, echo = FALSE}
-    options(scipen = 999) ## To avoid R to show number using scientific notation
-```
+
 
 ## Loading and preprocessing the data
 
@@ -15,7 +8,8 @@ output:
 ### Global Options and Initial Setup
 First of all, I'll configure the global settings to use **echo = TRUE** on every single code chunk. This is to ensure all the code used to generate the report is shown.
 
-```{r setoptions, echo=TRUE}
+
+```r
 library(knitr)
 opts_chunk$set(echo = TRUE)
 ```
@@ -24,7 +18,8 @@ opts_chunk$set(echo = TRUE)
 Use the following code chunk as a placeholder and enter your own path.  
 Or leave it as is if you have already took care of it.
 
-```{r Setup working directory}
+
+```r
 setwd("C:\\santiago.silvestrini\\Training\\Coursera\\JH DS 05\\PA1\\RepData_PeerAssessment1")
 ```
 
@@ -34,12 +29,14 @@ But as the GitHub repository is already containing it there is no need to downlo
 If you have forked/cloned the repository correctly as well as configured your working directory as instructed above, then the zip file will be located in the current folder.  
 The following piece of code will extract the .csv file from it:
 
-```{r Unzip Data}
+
+```r
 unzip("activity.zip")
 ```
 
 Next step will be to load the .csv file into memory:
-```{r Lead Data}
+
+```r
 data <- read.table( file = "activity.csv"
                     , header = TRUE
                     , sep = ","
@@ -58,19 +55,46 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 
 So, to ensure it was loaded correctly I'm going to explore it a litle bit:
 
-```{r Data Structure}
+
+```r
 str(data)
 ```
 
-```{r First Elements}
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : chr  "2012-10-01" "2012-10-01" "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+```
+
+
+```r
 head(data)
+```
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
 ```
 
 Will be useful to convert the **date** field to a date format instead of char.  
 
-```{r Cast Date field to Date format}
+
+```r
 data$date <- as.Date(data$date)
 str(data)
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Date, format: "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
 ## What is mean total number of steps taken per day?
@@ -79,22 +103,53 @@ str(data)
 
 For this step we I'll make use of the [sqldf package](https://cran.r-project.org/web/packages/sqldf/sqldf.pdf)
 
-```{r Get and Group Data}
+
+```r
 suppressMessages(library(sqldf))
 stepsperday <- sqldf("SELECT date
                             , SUM(steps) TotalSteps 
                      FROM data 
                      WHERE steps != 'NA' 
                      GROUP BY date ORDER BY date")
+```
 
+```
+## Loading required package: tcltk
+```
+
+```r
 head(stepsperday)
+```
+
+```
+##         date TotalSteps
+## 1 2012-10-02        126
+## 2 2012-10-03      11352
+## 3 2012-10-04      12116
+## 4 2012-10-05      13294
+## 5 2012-10-06      15420
+## 6 2012-10-07      11015
+```
+
+```r
 tail(stepsperday)
+```
+
+```
+##          date TotalSteps
+## 48 2012-11-24      14478
+## 49 2012-11-25      11834
+## 50 2012-11-26      11162
+## 51 2012-11-27      13646
+## 52 2012-11-28      10183
+## 53 2012-11-29       7047
 ```
 
 ### 2. Histogram of the total number of steps taken each day
 If you do not understand the [difference between a histogram and a barplot](http://stattrek.com/statistics/charts/histogram.aspx?Tutorial=AP), research the difference between them. Make a histogram of the total number of steps taken each day
 
-```{r Histogram Total Number of Steps}
+
+```r
 library(ggplot2)
 his <- ggplot(stepsperday, aes(x = TotalSteps)) +
     geom_histogram(binwidth = 3000, alpha = .7, aes(fill = ..count..)) +
@@ -106,9 +161,12 @@ his <- ggplot(stepsperday, aes(x = TotalSteps)) +
 print(his)
 ```
 
+![](PA1_template_files/figure-html/Histogram Total Number of Steps-1.png) 
+
 ### 3. Calculate and report the mean and median of the total number of steps taken per day
 
-```{r Mean and Median}
+
+```r
 ## Compute the Mean excluding NAs
 exmean <- round(mean(stepsperday$TotalSteps, na.rm = TRUE),2)
 
@@ -129,7 +187,9 @@ hismm + geom_histogram(binwidth = 3000, alpha = .7, aes(fill = ..count..)) +
                , color = "white", linetype = "dashed", alpha = .7, size = 0.5)
 ```
 
-The **Median** of the total number of steps taken per day is `r exmedian` while the **Mean** has a value of `r exmean` (excluding NAs).
+![](PA1_template_files/figure-html/Mean and Median-1.png) 
+
+The **Median** of the total number of steps taken per day is 10765 while the **Mean** has a value of 10766.19 (excluding NAs).
 
 *Although there is no need to filter out the NAs because we already did it in a previous step (check* **Get and Group Data chunk***), I just want to make it explicit in this section of the code to avoid any confusion and also in case I decide to change that later*  
 
@@ -138,8 +198,8 @@ The **Median** of the total number of steps taken per day is `r exmedian` while 
 ## What is the average daily activity pattern?
 ### 1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r Time Series}
 
+```r
 ## Group the data by intervals and compute the avg of steps
 stepsbyinterval <- sqldf("SELECT 
                             interval
@@ -151,8 +211,33 @@ stepsbyinterval <- sqldf("SELECT
 
 ## A quick look at the resultant data
 head(stepsbyinterval)
-tail(stepsbyinterval)
+```
 
+```
+##   interval  AvgSteps
+## 1        0 1.7169811
+## 2        5 0.3396226
+## 3       10 0.1320755
+## 4       15 0.1509434
+## 5       20 0.0754717
+## 6       25 2.0943396
+```
+
+```r
+tail(stepsbyinterval)
+```
+
+```
+##     interval  AvgSteps
+## 283     2330 2.6037736
+## 284     2335 4.6981132
+## 285     2340 3.3018868
+## 286     2345 0.6415094
+## 287     2350 0.2264151
+## 288     2355 1.0754717
+```
+
+```r
 ## Plot the time Series chart
 ts <- ggplot(stepsbyinterval, aes(x = interval, y = AvgSteps)) 
 ts + geom_line(alpha = .5) +
@@ -160,12 +245,14 @@ ts + geom_line(alpha = .5) +
     labs(x = "Interval", y = "Average Steps across days") +
     theme(plot.title = element_text(color = "#666666", face = "bold", size = 14, hjust = 0.5)) +
     theme(axis.title = element_text(color = "#666666", size = 12))
-
 ```
+
+![](PA1_template_files/figure-html/Time Series-1.png) 
 
 ### 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r Max Interval}
+
+```r
 ## Show the interval with max amount of avg steps
 max <- stepsbyinterval[which.max(stepsbyinterval$AvgSteps),]
 
@@ -184,10 +271,11 @@ ts + geom_line(alpha = .5) +
     geom_point(data = auxdf, aes(x = x, y = y, color = 'red')) +
     geom_text(data = auxdf, aes(label = label, x = x , y = y, color = 'red', size = 8), hjust = 0, vjust = 0) +
     theme(legend.position = "none")
-    
 ```
 
-The interval **`r max[,1]`** is the one with more steps in average: **`r round(max[,2],1)`** 
+![](PA1_template_files/figure-html/Max Interval-1.png) 
+
+The interval **835** is the one with more steps in average: **206.2** 
 
 ## Imputing missing values
 
@@ -195,7 +283,8 @@ Note that there are a number of days/intervals where there are missing values (c
 
 ### 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with *NAs*)
 
-```{r Missing Values}
+
+```r
 ## Count of intervals with missing steps by date
 missingdays <- sqldf("SELECT date
                             , COUNT(interval) intervals  
@@ -204,7 +293,19 @@ missingdays <- sqldf("SELECT date
                     GROUP BY date")
 print(missingdays)
 ```
-There are **`r sum(missingdays$intervals)`** intervals with NAs values, which represents a **`r round(nrow(data) / sum(missingdays$intervals),1)`%** of the total.
+
+```
+##         date intervals
+## 1 2012-10-01       288
+## 2 2012-10-08       288
+## 3 2012-11-01       288
+## 4 2012-11-04       288
+## 5 2012-11-09       288
+## 6 2012-11-10       288
+## 7 2012-11-14       288
+## 8 2012-11-30       288
+```
+There are **2304** intervals with NAs values, which represents a **7.6%** of the total.
 
 ### 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
@@ -212,8 +313,8 @@ I've chosen to go with the approach of replacing the NAs values by the mean for 
 
 ### 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r Fill in missing values}
 
+```r
 ## Copy the data to an auxiliary variable
 datacompleted <- data
 
@@ -228,10 +329,15 @@ for (i in 1:nrow(data)){
 nrow(datacompleted[!complete.cases(datacompleted),])
 ```
 
+```
+## [1] 0
+```
+
 ### 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 
-```{r Mean and Median for Completed Data}
+
+```r
 ## group the data
 newstepsperday <- sqldf("SELECT date, SUM(steps) TotalSteps FROM datacompleted GROUP BY date ORDER BY date")
 
@@ -243,7 +349,8 @@ newmedian <- median(newstepsperday$TotalSteps)
 ```
 
 
-```{r Plot Both Histograms}
+
+```r
 library(gridExtra)
 
 ## Plot the Median and Mean in the Histogram (2)
@@ -261,12 +368,13 @@ grid.arrange(his + ggtitle("Histogram of the total number of steps \n taken each
                     theme(plot.title = element_text(color = "#666666", face = "bold", size = 10, hjust = 0.5)) +
                     theme(axis.title = element_text(color = "#666666", size = 8))
              ,newhis , ncol = 2)
-
 ```
 
-The new calculated **Median** is `r round(newmedian,2)` while the one excluding NAs was `r exmedian`
+![](PA1_template_files/figure-html/Plot Both Histograms-1.png) 
 
-The new calculated **Mean** is `r round(newmean,2)` while the one excluding NAs was `r exmean`
+The new calculated **Median** is 10766.19 while the one excluding NAs was 10765
+
+The new calculated **Mean** is 10766.19 while the one excluding NAs was 10766.19
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -276,7 +384,8 @@ For this part the ***weekdays()*** function may be of some help here. Use the da
 
 ### 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data
 
-```{r Weekdays vs Weekends}
+
+```r
 data$dayname <- weekdays(data$date)
 data$daytype <- factor(ifelse( (data$dayname == "Saturday" | data$dayname == "Sunday"), "weekend", "weekday" ))
 
@@ -298,5 +407,7 @@ wts + geom_line(alpha = .5) +
     facet_wrap(~daytype, nrow = 2) +
     theme(legend.position = "none")
 ```
+
+![](PA1_template_files/figure-html/Weekdays vs Weekends-1.png) 
 
 We can see from the above chart that there is more activity on the early hours on weeekdays while on weekends we can see similar spikes during the entire day. Interesting to highlight that on the late hours of the day the subject is more active during weekends than on weekdays. Definitely is not a programmer.
